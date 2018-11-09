@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sipin.sales.cloud.purchase.service.mapper.xml.Sql">
+
+    <!-- Orders 通用查询结果列 -->
+    <sql id="PurchaseOrdersColumns">
+        `purchase_order`.`id` AS `${alias}_id`,
+        `purchase_order`.`no` AS `${alias}_no`,
+        `purchase_order`.`status_id` AS `${alias}_status_id`,
+        `purchase_order`.`amount` AS `${alias}_amount`,
+        `purchase_order`.`payable_amount` AS `${alias}_payable_amount`,
+        `purchase_order`.`paid_amount` AS `${alias}_paid_amount`,
+        `purchase_order`.`agency_code` AS `${alias}_agency_code`,
+        `purchase_order`.`shop_code` AS `${alias}_shop_code`,
+        `purchase_order`.`discount` AS `${alias}_discount`,
+        `purchase_order`.`creator_id` AS `${alias}_creator_id`,
+        `purchase_order`.`auditor_id` AS `${alias}_auditor_id`,
+        `purchase_order`.`audited_at` AS `${alias}_audited_at`,
+        `purchase_order`.`note` AS `${alias}_note`,
+        `purchase_order`.`is_deleted` AS `${alias}_is_deleted`,
+        `purchase_order`.`created_at` AS `${alias}_created_at`,
+        `purchase_order`.`updated_at` AS `${alias}_updated_at`
+    </sql>
+
+
+    <sql id="PurchaseOrderConsigneeColumns">
+        `purchase_order_consignee`.`id` AS `${alias}_id`,
+        `purchase_order_consignee`.`purchase_order_id` AS `${alias}_purchase_order_id`,
+        `purchase_order_consignee`.`name` AS `${alias}_name`,
+        `purchase_order_consignee`.`mobile` AS `${alias}_mobile`,
+        `purchase_order_consignee`.`phone` AS `${alias}_phone`,
+        `purchase_order_consignee`.`province` AS `${alias}_province`,
+        `purchase_order_consignee`.`city` AS `${alias}_city`,
+        `purchase_order_consignee`.`district` AS `${alias}_district`,
+        `purchase_order_consignee`.`addr` AS `${alias}_addr`,
+        `purchase_order_consignee`.`created_at` AS `${alias}_created_at`,
+        `purchase_order_consignee`.`updated_at` AS `${alias}_updated_at`
+    </sql>
+
+
+</mapper>

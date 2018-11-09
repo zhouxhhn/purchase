@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sipin.sales.cloud.purchase.service.mapper.PurchaseOrderDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.sipin.sales.cloud.pojo.PurchaseOrderDetail">
+        <id column="id" property="id" />
+        <result column="purchase_order_id" property="purchaseOrderId" />
+        <result column="detail_no" property="detailNo" />
+        <result column="sku_sn" property="skuSn" />
+        <result column="sku_no" property="skuNo" />
+        <result column="name" property="name" />
+        <result column="specification" property="specification" />
+        <result column="texture" property="texture" />
+        <result column="color" property="color" />
+        <result column="img_path" property="imgPath" />
+        <result column="total" property="total" />
+        <result column="stock_in_total" property="stockInTotal" />
+        <result column="amount" property="amount" />
+        <result column="discount_amount" property="discountAmount" />
+        <result column="note" property="note" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="new_discount_amount" property="newDiscountAmount" />
+        <result column="new_total" property="newTotal" />
+        <result column="flag" property="flag" />
+    </resultMap>
+
+</mapper>

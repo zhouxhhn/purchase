@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sipin.sales.cloud.purchase.service.mapper.PurchaseOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.sipin.sales.cloud.pojo.PurchaseOrder">
+        <id column="id" property="id"/>
+        <result column="no" property="no"/>
+        <result column="status_id" property="statusId"/>
+        <result column="amount" property="amount"/>
+        <result column="payable_amount" property="payableAmount"/>
+        <result column="paid_amount" property="paidAmount"/>
+
+        <result column="agency_code" property="agencyCode"/>
+        <result column="shop_code" property="shopCode"/>
+        <result column="discount" property="discount"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="audited_at" property="auditedAt"/>
+        <result column="note" property="note"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="OrdersAndConsigneeResultMap" type="cn.sipin.sales.cloud.pojo.PurchaseOrder">
+        <id column="orders_id" property="id"/>
+        <result column="orders_no" property="no"/>
+        <result column="orders_status_id" property="statusId"/>
+        <result column="orders_amount" property="amount"/>
+        <result column="orders_payable_amount" property="payableAmount"/>
+        <result column="paid_amount" property="paidAmount"/>
+        <result column="orders_agency_code" property="agencyCode"/>
+        <result column="orders_shop_code" property="shopCode"/>
+        <result column="discount" property="discount"/>
+        <result column="orders_creator_id" property="creatorId"/>
+        <result column="orders_auditor_id" property="auditorId"/>
+        <result column="orders_audited_at" property="auditedAt"/>
+        <result column="orders_note" property="note"/>
+        <result column="orders_is_deleted" property="isDeleted"/>
+        <result column="orders_created_at" property="createdAt"/>
+        <result column="orders_updated_at" property="updatedAt"/>
+
+        <association property="consignee"
+                     resultMap="cn.sipin.sales.cloud.purchase.service.mapper.PurchaseOrderConsigneeMapper.BaseResultMap"
+                     columnPrefix="purchase_order_consignee_"
+        />
+
+
+    </resultMap>
+
+
+    <select id="selectOrderPage" resultType="cn.sipin.sales.cloud.pojo.PurchaseOrder">
+        SELECT
+        `orders`.*
+        FROM `purchase_order` AS `orders`,
+        (SELECT
+        `id`
+        FROM `purchase_order`
+        <where>
+            `purchase_order`.`is_deleted` = 0
+
+            <if test="request.getShopCode() != null">
+                AND `purchase_order`.`shop_code` = #{request.shopCode}
+            </if>
+
+            <if test="order != null">
+                AND `purchase_order`.`agency_code` = #{order.agencyCode}
+                AND `purchase_order`.`shop_code` = #{order.shopCode}
+            </if>
+
+            <if test="request.getOrderNo() != null">
+                AND `purchase_order`.`no` = #{request.orderNo}
+            </if>
+            <if test="request.getStartTimeAt() != null and request.getEndTimeAt() != null">
+                <![CDATA[
+                 AND `purchase_order`.`created_at` >= #{request.startTimeAt}
+                 AND `purchase_order`.`created_at` <= #{request.endTimeAt}
+                 ]]>
+            </if>
+            <if test="request.getStatusId() != null">
+                AND `purchase_order`.`status_id` = #{request.statusId}
+            </if>
+        </where>
+        ORDER BY `purchase_order`.`created_at` DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+        ) `temp`
+        WHERE `orders`.`id` = `temp`.`id`
+        ORDER BY `orders`.`created_at` DESC
+    </select>
+    <select id="selectOrderPageCount" resultType="integer">
+        SELECT
+        COUNT(*)
+        FROM `purchase_order`
+        <where>
+            `purchase_order`.`is_deleted` = 0
+
+            <if test="request.getShopCode() != null">
+                AND `purchase_order`.`shop_code` = #{request.shopCode}
+            </if>
+
+            <if test="order != null">
+                AND `purchase_order`.`agency_code` = #{order.agencyCode}
+                AND `purchase_order`.`shop_code` = #{order.shopCode}
+            </if>
+            <if test="request.getOrderNo() != null">
+                AND `purchase_order`.`no` = #{request.orderNo}
+            </if>
+            <if test="request.getStartTimeAt() != null and request.getEndTimeAt() != null">
+                <![CDATA[
+                 AND `purchase_order`.`created_at` >= #{request.startTimeAt}
+                 AND `purchase_order`.`created_at` <= #{request.endTimeAt}
+                 ]]>
+            </if>
+            <if test="request.getStatusId() != null">
+                AND `purchase_order`.`status_id` = #{request.statusId}
+            </if>
+        </where>
+    </select>
+
+
+    <sql id="OrdersAndConsigneeSelect">
+        SELECT
+        <include refid="cn.sipin.sales.cloud.purchase.service.mapper.xml.Sql.PurchaseOrdersColumns">
+            <property name="alias" value="orders"/>
+        </include>
+        ,
+        <include refid="cn.sipin.sales.cloud.purchase.service.mapper.xml.Sql.PurchaseOrderConsigneeColumns">
+            <property name="alias" value="purchase_order_consignee"/>
+        </include>
+    </sql>
+
+    <select id="selectOrderForErpPage" resultMap="OrdersAndConsigneeResultMap">
+
+        <include refid="OrdersAndConsigneeSelect"/>
+        FROM `purchase_order`,
+        (SELECT
+        `id`
+        FROM `purchase_order` AS `orders`
+        <where>
+            `is_deleted` = 0
+            <![CDATA[
+                 AND  date_format(`orders`.`updated_at`, '%Y-%m-%d') >= #{request.beginDate}
+                 AND date_format(`orders`.`updated_at`,'%Y-%m-%d') <= #{request.endDate}
+                 ]]>
+            <if test="request.getOrderStatusId() != null">
+                AND `orders`.`status_id` = #{request.orderStatusId}
+            </if>
+        </where>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+        ) `temp`
+        LEFT JOIN `purchase_order_consignee` ON `purchase_order_consignee`.`purchase_order_id` = `temp`.`id`
+        WHERE `purchase_order`.`id` = `temp`.`id`
+        <if test="request.getSortType() == 1">
+            ORDER BY `purchase_order`.`created_at` ASC
+        </if>
+        <if test="request.getSortType() != 1">
+            ORDER BY `purchase_order`.`updated_at` ASC
+        </if>
+    </select>
+
+    <select id="selectOrderForErpPageCount" resultType="integer">
+        SELECT
+        COUNT(*)
+        FROM `purchase_order` AS `orders`
+        <where>
+            `is_deleted` = 0
+            <![CDATA[
+                 AND  date_format(`orders`.`updated_at`, '%Y-%m-%d') >= #{request.beginDate}
+                 AND date_format(`orders`.`updated_at`,'%Y-%m-%d') <= #{request.endDate}
+                 ]]>
+            <if test="request.getOrderStatusId() != null">
+                AND `orders`.`status_id` = #{request.orderStatusId}
+            </if>
+        </where>
+    </select>
+    <select id="selectWaitingPaymentList" resultType="cn.sipin.sales.cloud.pojo.PurchaseOrder">
+        SELECT `purchase_order`.*
+        FROM `purchase_order`
+        INNER JOIN
+        (SELECT
+        `id`
+        FROM `purchase_order` AS `orders`
+        WHERE `orders`.`is_deleted` = 0 AND `orders`.`status_id` = 0
+
+        ORDER BY `orders`.`updated_at` , `orders`.`created_at`  desc
+        LIMIT 3000
+        ) `temp_order` ON `temp_order`.`id` = `purchase_order`.`id`;
+    </select>
+
+    <update id="paySuccessFully">
+        UPDATE `purchase_order`
+        SET
+        `status_id` = #{purchaseOrder.statusId},
+        `auditor_id` = #{purchaseOrder.auditorId},
+        `audited_at` = #{purchaseOrder.auditedAt},
+        `paid_amount` = #{purchaseOrder.paidAmount}
+        WHERE `id` = #{purchaseOrder.id}
+        AND `status_id` between 0 AND 1
+    </update>
+</mapper>
